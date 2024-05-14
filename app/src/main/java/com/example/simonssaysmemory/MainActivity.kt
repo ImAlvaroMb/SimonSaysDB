@@ -1,24 +1,23 @@
 package com.example.simonssaysmemory
 
+import android.content.ContentValues
 import android.content.Context
+import android.database.sqlite.SQLiteDatabase
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import android.graphics.RectF
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import kotlinx.coroutines.Dispatchers
 import kotlin.random.Random
 
 
 class MainActivity : AppCompatActivity() {
     private lateinit var soundManager: SoundManager
+    private lateinit var GameDatabaseHelper: PlayerDbHelper
     var isClickBloqued = false
     var isHightlighting = false
     var blockGenerateSequence = false
@@ -37,6 +36,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         val customView = CustomView(this)
         soundManager = SoundManager(this)
+        GameDatabaseHelper = PlayerDbHelper(this)
         setContentView(customView)
     }
 
@@ -309,6 +309,7 @@ class MainActivity : AppCompatActivity() {
         fun loseGame() {
             blockGenerateSequence = false
             blockClickColors = true
+            SaveScore(currentScore)
             println("Lost")
             currentScore = 0
             userSquence = 0
@@ -317,8 +318,24 @@ class MainActivity : AppCompatActivity() {
             gameStarted = false
             invalidate()
 
+
         }
 
+        private fun SaveScore( score: Int) {
+            val db = GameDatabaseHelper.writableDatabase
+            GameDatabaseHelper.printDatabase()
+            val values = ContentValues().apply {
+                put(PlayerContract.PlayerEntry.COLUMN_NAME, "name")
+                put(PlayerContract.PlayerEntry.COLUMN_SCORE, score)
+            }
+            val newRowId = db.insertWithOnConflict(
+                PlayerContract.PlayerEntry.TABLE_NAME,
+                null,
+                values,
+                SQLiteDatabase.CONFLICT_REPLACE
+            )
+
+        }
 
     }
 

@@ -120,4 +120,5 @@
         android:layout_toStartOf="@id/scoreTextView"
         android:layout_marginEnd="20dp"/>
 
+
 </RelativeLayout>
